@@ -1,0 +1,1 @@
+*.tfstate\n*.log\n.terraform/\n*.bak\n*.zip\naws-exports.js\ncredentials\n.env
