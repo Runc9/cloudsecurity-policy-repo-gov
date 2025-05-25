@@ -1,13 +1,3 @@
-...(keep existing content)...
-
-## Terraform IaC
-- AWS Config Rules for S3 encryption and IAM MFA
-- SNS + Lambda remediation trigger setup
-- Python function to enforce encryption
-- Modular `lambda.tf` for clean separation of responsibilities
-
-## lambda.tf Content
-```hcl
 resource "aws_iam_role" "lambda_exec" {
   name = "lambda-s3-remediator"
 
@@ -31,12 +21,13 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
 }
 
 resource "aws_lambda_function" "remediate_s3_encryption" {
-  filename         = "lambda/remediate_s3_encryption.zip"
+  filename         = "${path.module}/../lambda/remediate_s3_encryption.zip"
   function_name    = "remediateS3Encryption"
   role             = aws_iam_role.lambda_exec.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.9"
-  source_code_hash = filebase64sha256("lambda/remediate_s3_encryption.zip")
+  source_code_hash = filebase64sha256("${path.module}/../lambda/remediate_s3_encryption.zip")
+
 
   environment {
     variables = {
@@ -51,6 +42,3 @@ resource "aws_lambda_permission" "allow_config" {
   function_name = aws_lambda_function.remediate_s3_encryption.function_name
   principal     = "config.amazonaws.com"
 }
-```
-
-This isolates all remediation infrastructure in `lambda.tf`, supporting traceable deployments and clean modular control.
